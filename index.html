@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Equipos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="min-h-screen bg-bg text-ink font-sans">
+
+  <div class="max-w-6xl mx-auto px-4 py-6 md:py-10">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span id="statusDot" class="w-[7px] h-[7px] rounded-full inline-block bg-ink-dim"></span>
+          <span id="statusText" class="text-xs font-mono text-ink-dim">Solo local</span>
+        </div>
+        <h1 class="text-2xl md:text-3xl font-bold tracking-tight">Registro de Equipos</h1>
+        <p class="text-sm text-ink-dim">Inventario de No. de serie, marca/modelo y RAM</p>
+      </div>
+      <button id="btnSettings" class="btn btn-sm bg-transparent border border-line text-ink-dim hover:border-accent hover:text-accent" title="Configurar Firestore">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Formulario -->
+    <div class="bg-panel border border-line rounded-lg p-5 md:p-6 mb-8">
+      <h2 class="text-sm font-semibold uppercase tracking-wide mb-4 text-ink-dim" id="formTitle">Nuevo equipo</h2>
+      <form id="equipoForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="text-xs mb-1 block text-ink-dim">No. de serie *</label>
+          <input type="text" id="noSerie" required
+            class="w-full px-3 py-2 text-sm font-mono bg-panel-2 border border-line rounded-lg focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+            placeholder="Ej. 5CD1234ABC">
+        </div>
+
+        <div>
+          <label class="text-xs mb-1 block text-ink-dim">RAM *</label>
+          <select id="ram" required class="w-full px-3 py-2 text-sm bg-panel-2 border border-line rounded-lg focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20">
+            <option value="" disabled selected>Selecciona...</option>
+            <option value="4 GB">4 GB</option>
+            <option value="8 GB">8 GB</option>
+            <option value="16 GB">16 GB</option>
+            <option value="32 GB">32 GB</option>
+            <option value="64 GB">64 GB</option>
+            <option value="__otra__">Otra...</option>
+          </select>
+          <input type="text" id="ramOtra"
+            class="w-full px-3 py-2 text-sm bg-panel-2 border border-line rounded-lg mt-2 hidden focus:outline-none focus:border-accent"
+            placeholder="Especifica la RAM">
+        </div>
+
+        <div>
+          <label class="text-xs mb-1 block text-ink-dim">Marca / Modelo *</label>
+          <select id="marca" required class="w-full px-3 py-2 text-sm bg-panel-2 border border-line rounded-lg focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20">
+            <option value="" disabled selected>Selecciona...</option>
+            <option value="HP">HP</option>
+            <option value="Lenovo">Lenovo</option>
+            <option value="Dell">Dell</option>
+            <option value="ThinkSmart">ThinkSmart</option>
+            <option value="__otra__">Otra...</option>
+          </select>
+          <input type="text" id="marcaOtra"
+            class="w-full px-3 py-2 text-sm bg-panel-2 border border-line rounded-lg mt-2 hidden focus:outline-none focus:border-accent"
+            placeholder="Especifica marca/modelo">
+        </div>
+
+        <div>
+          <label class="text-xs mb-1 block text-ink-dim">Comentario</label>
+          <input type="text" id="comentario"
+            class="w-full px-3 py-2 text-sm bg-panel-2 border border-line rounded-lg focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+            placeholder="Opcional">
+        </div>
+
+        <div class="md:col-span-2 flex items-center justify-between pt-2">
+          <span id="formError" class="text-xs text-danger"></span>
+          <div class="flex gap-2">
+            <button type="button" id="btnCancelEdit" class="btn btn-sm bg-transparent border border-line text-ink-dim hover:border-accent hover:text-accent hidden">
+              Cancelar edición
+            </button>
+            <button type="submit" id="btnSubmit" class="btn btn-sm bg-accent text-[#0b1a18] font-semibold hover:bg-[#7fdccf] border-none px-6">
+              Agregar equipo
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+      <div class="flex items-center gap-3">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-ink-dim">Equipos registrados</h2>
+        <span id="totalCount" class="font-mono text-[11px] px-2 py-0.5 rounded border border-line text-ink-dim">0</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <input type="text" id="buscador" placeholder="Buscar por serie, marca, RAM..."
+          class="px-3 py-1.5 text-sm w-56 bg-panel-2 border border-line rounded-lg focus:outline-none focus:border-accent">
+        <button id="btnExportJSON" class="btn btn-sm bg-transparent border border-line text-ink-dim hover:border-accent hover:text-accent">JSON</button>
+        <button id="btnExportExcel" class="btn btn-sm bg-transparent border border-line text-ink-dim hover:border-accent hover:text-accent">Excel</button>
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="bg-panel border border-line rounded-lg overflow-x-auto">
+      <table class="table w-full text-sm">
+        <thead>
+          <tr>
+            <th class="px-4 py-3 text-ink-dim font-semibold uppercase text-[11px] tracking-wide border-b border-line">No. Serie</th>
+            <th class="px-4 py-3 text-ink-dim font-semibold uppercase text-[11px] tracking-wide border-b border-line">Marca / Modelo</th>
+            <th class="px-4 py-3 text-ink-dim font-semibold uppercase text-[11px] tracking-wide border-b border-line">RAM</th>
+            <th class="px-4 py-3 text-ink-dim font-semibold uppercase text-[11px] tracking-wide border-b border-line">Comentario</th>
+            <th class="px-4 py-3 text-ink-dim font-semibold uppercase text-[11px] tracking-wide border-b border-line">Fecha</th>
+            <th class="px-4 py-3 text-ink-dim font-semibold uppercase text-[11px] tracking-wide border-b border-line text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tablaBody"></tbody>
+      </table>
+      <div id="emptyState" class="text-center py-10 hidden text-ink-dim">
+        Aún no hay equipos registrados.
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de configuración de Firestore -->
+  <dialog id="settingsModal" class="modal">
+    <div class="modal-box max-w-lg bg-panel border border-line">
+      <h3 class="font-bold text-lg mb-1">Configurar Firestore</h3>
+      <p class="text-xs mb-4 text-ink-dim">
+        Pega la configuración de tu proyecto de Firebase (Firebase Console → Configuración del proyecto → tus apps → SDK config).
+        Si no configuras nada, la app funciona solo con localStorage.
+      </p>
+      <textarea id="firebaseConfigInput" rows="8"
+        class="w-full px-3 py-2 text-xs font-mono bg-panel-2 border border-line rounded-lg focus:outline-none focus:border-accent"
+        placeholder='{
+  "apiKey": "...",
+  "authDomain": "...",
+  "projectId": "...",
+  "storageBucket": "...",
+  "messagingSenderId": "...",
+  "appId": "..."
+}'></textarea>
+      <div class="mb-2 mt-2">
+        <label class="text-xs mb-1 block text-ink-dim">Nombre de la colección</label>
+        <input type="text" id="collectionNameInput" value="equipos"
+          class="w-full px-3 py-2 text-sm font-mono bg-panel-2 border border-line rounded-lg focus:outline-none focus:border-accent">
+      </div>
+      <p id="settingsError" class="text-xs mb-2 text-danger"></p>
+      <div class="modal-action justify-between">
+        <button id="btnDisconnect" class="btn btn-sm bg-transparent border border-line text-ink-dim hover:border-accent hover:text-accent">Desconectar</button>
+        <div class="flex gap-2">
+          <button id="btnCloseSettings" class="btn btn-sm bg-transparent border border-line text-ink-dim hover:border-accent hover:text-accent">Cancelar</button>
+          <button id="btnSaveSettings" class="btn btn-sm bg-accent text-[#0b1a18] font-semibold hover:bg-[#7fdccf] border-none">Guardar y conectar</button>
+        </div>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop"><button>close</button></form>
+  </dialog>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
