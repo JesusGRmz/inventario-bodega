@@ -61,6 +61,7 @@ class EquiposStore {
       noSerie: datos.noSerie,
       marca: datos.marca,
       ram: datos.ram,
+       procesador: datos.procesador || '',
       comentario: datos.comentario || '',
       fecha: new Date().toISOString()
     };
@@ -105,6 +106,7 @@ class EquiposStore {
         eq.noSerie.toLowerCase().includes(t) ||
         eq.marca.toLowerCase().includes(t) ||
         eq.ram.toLowerCase().includes(t) ||
+        (eq.procesador || '').toLowerCase().includes(t) ||
         (eq.comentario || '').toLowerCase().includes(t)
     );
   }

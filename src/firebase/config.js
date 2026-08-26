@@ -4,15 +4,20 @@ import { getAuth } from 'firebase/auth';
 
 const LS_FIREBASE_KEY = 'equipos_firebase_config_v1';
 
+const DEFAULT_FIREBASE_CONFIG = {
+  apiKey: 'AIzaSyDBBBepZ3Y6_VLnUOvy1UJUA57u8PDfBFs',
+  authDomain: 'inventario-bodega-4f147.firebaseapp.com',
+  projectId: 'inventario-bodega-4f147',
+  storageBucket: 'inventario-bodega-4f147.firebasestorage.app',
+  messagingSenderId: '955556171433',
+  appId: '1:955556171433:web:9bd48411483161144323b8'
+};
+const DEFAULT_COLLECTION = 'equipos';
+
 let app = null;
 let db = null;
 let auth = null;
 
-/**
- * Config "de fábrica" opcional vía variables de entorno (.env).
- * Útil si siempre usas el mismo proyecto de Firebase en este equipo/deploy.
- * Si no defines las variables, simplemente no se usa.
- */
 function configDesdeEnv() {
   const cfg = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -33,8 +38,9 @@ export function cargarConfigGuardada() {
     /* ignora JSON corrupto */
   }
   const envCfg = configDesdeEnv();
-  if (envCfg) return { config: envCfg, collectionName: 'equipos' };
-  return null;
+  if (envCfg) return { config: envCfg, collectionName: DEFAULT_COLLECTION };
+  // nadie configuró nada manualmente: usa la config por defecto del proyecto
+  return { config: DEFAULT_FIREBASE_CONFIG, collectionName: DEFAULT_COLLECTION };
 }
 
 export function guardarConfig(config, collectionName) {
@@ -50,7 +56,6 @@ export function borrarConfigGuardada() {
 
 export function initFirebase(config) {
   try {
-    // si ya había una app inicializada (p. ej. al reconectar), la limpiamos primero
     for (const existing of getApps()) {
       deleteApp(existing);
     }

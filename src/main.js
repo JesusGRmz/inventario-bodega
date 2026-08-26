@@ -8,7 +8,13 @@ import {
   initFirebase
 } from './firebase/config.js';
 import { login, logout, escucharSesion, mensajeErrorLogin } from './firebase/auth.js';
+import { crearVigilanteInactividad } from './utils/inactivity.js';
 import * as ui from './modules/ui.js';
+
+const MINUTOS_INACTIVIDAD = 10;
+const vigilanteInactividad = crearVigilanteInactividad(MINUTOS_INACTIVIDAD, () => {
+  if (authInstance) logout(authInstance);
+});
 
 let terminoBusqueda = '';
 
@@ -100,9 +106,11 @@ function conectarConAuth({ db, auth }, collectionName) {
       ui.mostrarApp(true);
       equiposStore.conectarFirestore(db, collectionName);
       ui.setStatus(true, 'Sincronizado con Firestore');
+      vigilanteInactividad.iniciar();
     } else {
       equiposStore.desconectarFirestore();
       ui.mostrarLogin();
+      vigilanteInactividad.detener();
     }
   });
 }
