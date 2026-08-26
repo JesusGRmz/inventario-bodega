@@ -1,10 +1,12 @@
 import { initializeApp, deleteApp, getApps } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
 const LS_FIREBASE_KEY = 'equipos_firebase_config_v1';
 
 let app = null;
 let db = null;
+let auth = null;
 
 /**
  * Config "de fábrica" opcional vía variables de entorno (.env).
@@ -54,15 +56,21 @@ export function initFirebase(config) {
     }
     app = initializeApp(config);
     db = getFirestore(app);
-    return db;
+    auth = getAuth(app);
+    return { db, auth };
   } catch (e) {
     console.error('Error al inicializar Firebase:', e);
     app = null;
     db = null;
+    auth = null;
     return null;
   }
 }
 
 export function getDb() {
   return db;
+}
+
+export function getAuthInstance() {
+  return auth;
 }

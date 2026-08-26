@@ -7,6 +7,7 @@ import {
   borrarConfigGuardada,
   initFirebase
 } from './firebase/config.js';
+import { login, logout, escucharSesion, mensajeErrorLogin } from './firebase/auth.js';
 import * as ui from './modules/ui.js';
 
 let terminoBusqueda = '';
@@ -24,8 +25,6 @@ ui.onSubmitForm(async (datos, idEnEdicion) => {
   } else {
     await equiposStore.agregar(datos);
   }
-  // si no hay Firestore conectado, onChange no se dispara solo desde afuera:
-  // forzamos refresco por si el store cambió de forma síncrona (modo local)
   refrescar();
 });
 
@@ -60,15 +59,14 @@ ui.onOpenSettings(() => ui.abrirModalSettings(cargarConfigGuardada()));
 ui.onCloseSettings(() => ui.cerrarModalSettings());
 
 ui.onSaveSettings((config, collectionName) => {
-  const db = initFirebase(config);
-  if (!db) {
+  const resultado = initFirebase(config);
+  if (!resultado) {
     ui.mostrarErrorSettings('No se pudo conectar. Revisa la configuración.');
     return;
   }
   guardarConfig(config, collectionName);
-  equiposStore.conectarFirestore(db, collectionName);
-  ui.setStatus(true, 'Sincronizado con Firestore');
   ui.cerrarModalSettings();
+  conectarConAuth(resultado, collectionName);
 });
 
 ui.onDisconnect(() => {
@@ -76,8 +74,38 @@ ui.onDisconnect(() => {
   equiposStore.desconectarFirestore();
   ui.setStatus(false, 'Solo local');
   ui.cerrarModalSettings();
+  ui.mostrarApp(false); // sin Firestore no se exige login
   refrescar();
 });
+
+// --- login / logout ---
+ui.onSubmitLogin(async (email, password) => {
+  try {
+    await login(authInstance, email, password);
+  } catch (e) {
+    ui.mostrarErrorLogin(mensajeErrorLogin(e.code));
+  }
+});
+
+ui.onLogout(async () => {
+  await logout(authInstance);
+});
+
+let authInstance = null;
+
+function conectarConAuth({ db, auth }, collectionName) {
+  authInstance = auth;
+  escucharSesion(auth, (usuario) => {
+    if (usuario) {
+      ui.mostrarApp(true);
+      equiposStore.conectarFirestore(db, collectionName);
+      ui.setStatus(true, 'Sincronizado con Firestore');
+    } else {
+      equiposStore.desconectarFirestore();
+      ui.mostrarLogin();
+    }
+  });
+}
 
 function refrescar() {
   const filtrados = equiposStore.buscar(terminoBusqueda);
@@ -89,12 +117,12 @@ function refrescar() {
   refrescar();
   const cfg = cargarConfigGuardada();
   if (cfg && cfg.config) {
-    const db = initFirebase(cfg.config);
-    if (db) {
-      equiposStore.conectarFirestore(db, cfg.collectionName);
-      ui.setStatus(true, 'Sincronizado con Firestore');
+    const resultado = initFirebase(cfg.config);
+    if (resultado) {
+      conectarConAuth(resultado, cfg.collectionName);
       return;
     }
   }
+  ui.mostrarApp(false); // sin Firestore configurado: modo local directo, sin login
   ui.setStatus(false, 'Solo local');
 })();

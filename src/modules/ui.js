@@ -32,7 +32,16 @@ const el = {
   settingsError: document.getElementById('settingsError'),
   btnSaveSettings: document.getElementById('btnSaveSettings'),
   btnCloseSettings: document.getElementById('btnCloseSettings'),
-  btnDisconnect: document.getElementById('btnDisconnect')
+  btnDisconnect: document.getElementById('btnDisconnect'),
+
+  loginScreen: document.getElementById('loginScreen'),
+  appContent: document.getElementById('appContent'),
+  loginForm: document.getElementById('loginForm'),
+  loginEmail: document.getElementById('loginEmail'),
+  loginPassword: document.getElementById('loginPassword'),
+  loginError: document.getElementById('loginError'),
+  btnLogin: document.getElementById('btnLogin'),
+  btnLogout: document.getElementById('btnLogout')
 };
 
 let idEnEdicion = null;
@@ -228,4 +237,40 @@ export function mostrarErrorSettings(msg) {
 }
 export function onDisconnect(handler) {
   el.btnDisconnect.addEventListener('click', handler);
+}
+
+// --- login / logout ---
+export function mostrarLogin() {
+  el.loginScreen.classList.remove('hidden');
+  el.appContent.classList.add('hidden');
+  el.btnLogout.classList.add('hidden');
+}
+
+export function mostrarApp(conLogout) {
+  el.loginScreen.classList.add('hidden');
+  el.appContent.classList.remove('hidden');
+  el.btnLogout.classList.toggle('hidden', !conLogout);
+}
+
+export function onSubmitLogin(handler) {
+  el.loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    el.loginError.textContent = '';
+    el.btnLogin.disabled = true;
+    el.btnLogin.textContent = 'Entrando...';
+    try {
+      await handler(el.loginEmail.value.trim(), el.loginPassword.value);
+    } finally {
+      el.btnLogin.disabled = false;
+      el.btnLogin.textContent = 'Entrar';
+    }
+  });
+}
+
+export function mostrarErrorLogin(msg) {
+  el.loginError.textContent = msg;
+}
+
+export function onLogout(handler) {
+  el.btnLogout.addEventListener('click', handler);
 }
