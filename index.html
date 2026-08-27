@@ -45,7 +45,7 @@
           <span id="statusDot" class="w-[7px] h-[7px] rounded-full inline-block bg-ink-dim"></span>
           <span id="statusText" class="text-xs font-mono text-ink-dim">Solo local</span>
         </div>
-        <h1 class="text-2xl md:text-3xl font-bold tracking-tight">Registro de Equipos</h1>        
+        <h1 class="text-2xl md:text-3xl font-bold tracking-tight">Registro de Equipos</h1>
       </div>
       <div class="flex items-center gap-2">
         <button id="btnLogout" class="btn btn-sm bg-transparent border border-line text-ink-dim hover:border-danger hover:text-danger hidden">
@@ -78,7 +78,7 @@
             <option value="4 GB">4 GB</option>
             <option value="8 GB">8 GB</option>
             <option value="16 GB">16 GB</option>
-            <option value="32 GB">32 GB</option>            
+            <option value="32 GB">32 GB</option>
             <option value="__otra__">Otra...</option>
           </select>
           <input type="text" id="ramOtra"
@@ -92,7 +92,7 @@
             <option value="" disabled selected>Selecciona...</option>
             <option value="HP">HP</option>
             <option value="Lenovo">Lenovo</option>
-            <option value="Dell">Dell</option>            
+            <option value="Dell">Dell</option>
             <option value="__otra__">Otra...</option>
           </select>
           <input type="text" id="marcaOtra"
@@ -108,6 +108,27 @@
         </div>
 
         <div>
+          <label class="text-xs mb-1 block text-ink-dim">Ingeniero asignado *</label>
+          <select id="ingenieroAsignado" required class="w-full px-3 py-2 text-sm bg-panel-2 border border-line rounded-lg focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20">
+            <option value="" disabled selected>Selecciona...</option>
+            <option value="Jesus Alberto Abundes Ramirez">Jesus Alberto Abundes Ramirez</option>
+            <option value="Diego Emiliano Lopez Robles">Diego Emiliano Lopez Robles</option>
+            <option value="Jose de Jesus Gaytan Ramirez">Jose de Jesus Gaytan Ramirez</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="text-xs mb-1 block text-ink-dim">Estatus *</label>
+          <select id="estatus" required class="w-full px-3 py-2 text-sm bg-panel-2 border border-line rounded-lg focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20">
+            <option value="" disabled selected>Selecciona...</option>
+            <option value="Renovado">Renovado</option>
+            <option value="Por borrar">Por borrar</option>
+            <option value="En resguardo">En resguardo</option>
+            <option value="Entregado">Entregado</option>
+          </select>
+        </div>
+
+        <div class="md:col-span-2">
           <label class="text-xs mb-1 block text-ink-dim">Comentario</label>
           <input type="text" id="comentario"
             class="w-full px-3 py-2 text-sm bg-panel-2 border border-line rounded-lg focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
@@ -135,7 +156,7 @@
         <span id="totalCount" class="font-mono text-[11px] px-2 py-0.5 rounded border border-line text-ink-dim">0</span>
       </div>
       <div class="flex items-center gap-2">
-        <input type="text" id="buscador" placeholder="Buscar por serie, marca, RAM..."
+        <input type="text" id="buscador" placeholder="Buscar en cualquier campo..."
           class="px-3 py-1.5 text-sm w-56 bg-panel-2 border border-line rounded-lg focus:outline-none focus:border-accent">
         <button id="btnExportJSON" class="btn btn-sm bg-transparent border border-line text-ink-dim hover:border-accent hover:text-accent">JSON</button>
         <button id="btnExportExcel" class="btn btn-sm bg-transparent border border-line text-ink-dim hover:border-accent hover:text-accent">Excel</button>
@@ -151,6 +172,8 @@
             <th class="px-4 py-3 text-ink-dim font-semibold uppercase text-[11px] tracking-wide border-b border-line">Marca / Modelo</th>
             <th class="px-4 py-3 text-ink-dim font-semibold uppercase text-[11px] tracking-wide border-b border-line">RAM</th>
             <th class="px-4 py-3 text-ink-dim font-semibold uppercase text-[11px] tracking-wide border-b border-line">Procesador</th>
+            <th class="px-4 py-3 text-ink-dim font-semibold uppercase text-[11px] tracking-wide border-b border-line">Ingeniero</th>
+            <th class="px-4 py-3 text-ink-dim font-semibold uppercase text-[11px] tracking-wide border-b border-line">Estatus</th>
             <th class="px-4 py-3 text-ink-dim font-semibold uppercase text-[11px] tracking-wide border-b border-line">Comentario</th>
             <th class="px-4 py-3 text-ink-dim font-semibold uppercase text-[11px] tracking-wide border-b border-line">Fecha</th>
             <th class="px-4 py-3 text-ink-dim font-semibold uppercase text-[11px] tracking-wide border-b border-line text-right">Acciones</th>

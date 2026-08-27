@@ -11,7 +11,7 @@ import { login, logout, escucharSesion, mensajeErrorLogin } from './firebase/aut
 import { crearVigilanteInactividad } from './utils/inactivity.js';
 import * as ui from './modules/ui.js';
 
-const MINUTOS_INACTIVIDAD = 10;
+const MINUTOS_INACTIVIDAD = 15;
 const vigilanteInactividad = crearVigilanteInactividad(MINUTOS_INACTIVIDAD, () => {
   if (authInstance) logout(authInstance);
 });
@@ -31,6 +31,8 @@ ui.onSubmitForm(async (datos, idEnEdicion) => {
   } else {
     await equiposStore.agregar(datos);
   }
+  // si no hay Firestore conectado, onChange no se dispara solo desde afuera:
+  // forzamos refresco por si el store cambió de forma síncrona (modo local)
   refrescar();
 });
 
@@ -88,6 +90,7 @@ ui.onDisconnect(() => {
 ui.onSubmitLogin(async (email, password) => {
   try {
     await login(authInstance, email, password);
+    // escucharSesion() se encarga de mostrar la app al detectar el login
   } catch (e) {
     ui.mostrarErrorLogin(mensajeErrorLogin(e.code));
   }

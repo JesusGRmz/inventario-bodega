@@ -4,6 +4,10 @@ import { getAuth } from 'firebase/auth';
 
 const LS_FIREBASE_KEY = 'equipos_firebase_config_v1';
 
+// Config por defecto: así la app conecta sola en cualquier dispositivo,
+// sin necesitar pegar nada en el modal ⚙️. El apiKey de Firebase no es
+// secreto (está pensado para vivir en el navegador); lo que protege los
+// datos son las reglas de Firestore + Authentication, no ocultar esto.
 const DEFAULT_FIREBASE_CONFIG = {
   apiKey: 'AIzaSyDBBBepZ3Y6_VLnUOvy1UJUA57u8PDfBFs',
   authDomain: 'inventario-bodega-4f147.firebaseapp.com',
@@ -18,6 +22,11 @@ let app = null;
 let db = null;
 let auth = null;
 
+/**
+ * Config "de fábrica" opcional vía variables de entorno (.env).
+ * Útil si siempre usas el mismo proyecto de Firebase en este equipo/deploy.
+ * Si no defines las variables, simplemente no se usa.
+ */
 function configDesdeEnv() {
   const cfg = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -56,6 +65,7 @@ export function borrarConfigGuardada() {
 
 export function initFirebase(config) {
   try {
+    // si ya había una app inicializada (p. ej. al reconectar), la limpiamos primero
     for (const existing of getApps()) {
       deleteApp(existing);
     }

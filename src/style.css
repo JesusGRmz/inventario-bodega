@@ -20,6 +20,15 @@
   color: #8fa1ae;
 }
 
+.badge-estatus {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 5px;
+  border-width: 1px;
+  border-style: solid;
+}
+
 .fade-in {
   animation: fadeIn 0.2s ease;
 }

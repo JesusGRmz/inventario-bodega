@@ -12,10 +12,10 @@ export function exportarExcel(equipos) {
     'Marca / Modelo': eq.marca,
     RAM: eq.ram,
     Comentario: eq.comentario || '',
-    // 'Fecha de registro': fmtFecha(eq.fecha)
+    'Fecha de registro': fmtFecha(eq.fecha)
   }));
   const ws = XLSX.utils.json_to_sheet(datos);
-  ws['!cols'] = [{ wch: 20 }, { wch: 18 }, { wch: 10 }, { wch: 35 }]; // { wch: 20 } // ancho de 'Fecha de registro'
+  ws['!cols'] = [{ wch: 20 }, { wch: 18 }, { wch: 10 }, { wch: 35 }, { wch: 20 }];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Equipos');
   XLSX.writeFile(wb, `equipos_${new Date().toISOString().slice(0, 10)}.xlsx`);

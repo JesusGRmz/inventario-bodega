@@ -8,6 +8,25 @@ import {
   eliminarEquipo as eliminarDeFirestore
 } from './firestore.js';
 
+/** Campos que se guardan tal cual vienen del formulario (mismo nombre en ambos lados). */
+const CAMPOS_EQUIPO = [
+  'noSerie',
+  'marca',
+  'ram',
+  'procesador',
+  'ingenieroAsignado',
+  'estatus',
+  'comentario'
+];
+
+function construirEquipo(datos) {
+  const equipo = { id: uid(), fecha: new Date().toISOString() };
+  for (const campo of CAMPOS_EQUIPO) {
+    equipo[campo] = datos[campo] || '';
+  }
+  return equipo;
+}
+
 /**
  * Store simple en memoria con patrón observador.
  * - Si hay Firestore conectado, es la fuente de verdad (tiempo real) y
@@ -56,16 +75,7 @@ class EquiposStore {
   }
 
   async agregar(datos) {
-    const equipo = {
-      id: uid(),
-      noSerie: datos.noSerie,
-      marca: datos.marca,
-      ram: datos.ram,
-       procesador: datos.procesador || '',
-      comentario: datos.comentario || '',
-      fecha: new Date().toISOString()
-    };
-
+    const equipo = construirEquipo(datos);
     if (this.db) {
       await guardarEnFirestore(this.db, this.collectionName, equipo);
       // el listener onSnapshot actualiza el estado y notifica
@@ -80,9 +90,7 @@ class EquiposStore {
     if (this.db) {
       await actualizarEnFirestore(this.db, this.collectionName, id, cambios);
     } else {
-      this.equipos = this.equipos.map((eq) =>
-        eq.id === id ? { ...eq, ...cambios } : eq
-      );
+      this.equipos = this.equipos.map((eq) => (eq.id === id ? { ...eq, ...cambios } : eq));
       guardarLocal(this.equipos);
       this._emit();
     }
@@ -101,13 +109,9 @@ class EquiposStore {
   buscar(termino) {
     const t = (termino || '').toLowerCase().trim();
     if (!t) return this.equipos;
-    return this.equipos.filter(
-      (eq) =>
-        eq.noSerie.toLowerCase().includes(t) ||
-        eq.marca.toLowerCase().includes(t) ||
-        eq.ram.toLowerCase().includes(t) ||
-        (eq.procesador || '').toLowerCase().includes(t) ||
-        (eq.comentario || '').toLowerCase().includes(t)
+    // busca en todos los campos de texto del equipo, sin importar cuáles se agreguen a futuro
+    return this.equipos.filter((eq) =>
+      CAMPOS_EQUIPO.some((campo) => (eq[campo] || '').toLowerCase().includes(t))
     );
   }
 
