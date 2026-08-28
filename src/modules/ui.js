@@ -145,8 +145,12 @@ export function onSubmitForm(handler) {
       el.formError.textContent = error;
       return;
     }
-    await handler(datos, idEnEdicion);
-    resetFormulario();
+    try {
+      await handler(datos, idEnEdicion);
+      resetFormulario();
+    } catch (err) {
+      el.formError.textContent = err.message || 'No se pudo guardar el equipo.';
+    }
   });
 }
 

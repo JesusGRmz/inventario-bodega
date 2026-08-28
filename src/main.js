@@ -26,13 +26,14 @@ equiposStore.onChange((equipos) => {
 
 // --- formulario: alta y edición ---
 ui.onSubmitForm(async (datos, idEnEdicion) => {
+  if (equiposStore.existeNoSerie(datos.noSerie, idEnEdicion)) {
+    throw new Error(`Ya existe un equipo registrado con el No. de serie "${datos.noSerie}".`);
+  }
   if (idEnEdicion) {
     await equiposStore.editar(idEnEdicion, datos);
   } else {
     await equiposStore.agregar(datos);
   }
-  // si no hay Firestore conectado, onChange no se dispara solo desde afuera:
-  // forzamos refresco por si el store cambió de forma síncrona (modo local)
   refrescar();
 });
 

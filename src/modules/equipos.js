@@ -118,6 +118,14 @@ class EquiposStore {
   obtenerPorId(id) {
     return this.equipos.find((eq) => eq.id === id) || null;
   }
+  
+existeNoSerie(noSerie, idExcluir = null) {
+  const valor = (noSerie || '').trim().toLowerCase();
+  if (!valor) return false;
+  return this.equipos.some(
+    (eq) => eq.id !== idExcluir && (eq.noSerie || '').trim().toLowerCase() === valor
+  );
+}
 }
 
 export const equiposStore = new EquiposStore();
