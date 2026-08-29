@@ -44,7 +44,12 @@ const el = {
   loginPassword: document.getElementById('loginPassword'),
   loginError: document.getElementById('loginError'),
   btnLogin: document.getElementById('btnLogin'),
-  btnLogout: document.getElementById('btnLogout')
+  btnLogout: document.getElementById('btnLogout'),
+
+  btnScan: document.getElementById('btnScan'),
+  scannerModal: document.getElementById('scannerModal'),
+  scannerVideo: document.getElementById('scannerVideo'),
+  scannerError: document.getElementById('scannerError')
 };
 
 let idEnEdicion = null;
@@ -316,4 +321,35 @@ export function mostrarErrorLogin(msg) {
 
 export function onLogout(handler) {
   el.btnLogout.addEventListener('click', handler);
+}
+
+// --- escaneo de código de barras ---
+export function abrirEscaner() {
+  el.scannerError.textContent = '';
+  el.scannerModal.showModal();
+}
+
+export function cerrarEscaner() {
+  el.scannerModal.close();
+}
+
+export function getVideoElement() {
+  return el.scannerVideo;
+}
+
+export function setBuscadorValor(valor) {
+  el.buscador.value = valor;
+}
+
+export function mostrarErrorEscaner(msg) {
+  el.scannerError.textContent = msg;
+}
+
+export function onAbrirEscaner(handler) {
+  el.btnScan.addEventListener('click', handler);
+}
+
+/** El evento nativo 'close' del <dialog> cubre: botón Cancelar, tecla Esc y clic en el fondo. */
+export function onEscanerCerrado(handler) {
+  el.scannerModal.addEventListener('close', handler);
 }

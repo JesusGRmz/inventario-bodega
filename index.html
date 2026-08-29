@@ -158,6 +158,11 @@
       <div class="flex items-center gap-2">
         <input type="text" id="buscador" placeholder="Buscar en cualquier campo..."
           class="px-3 py-1.5 text-sm w-56 bg-panel-2 border border-line rounded-lg focus:outline-none focus:border-accent">
+        <button id="btnScan" class="btn btn-sm bg-transparent border border-line text-ink-dim hover:border-accent hover:text-accent" title="Escanear código de barras">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 12h10"/>
+          </svg>
+        </button>
         <button id="btnExportJSON" class="btn btn-sm bg-transparent border border-line text-ink-dim hover:border-accent hover:text-accent">JSON</button>
         <button id="btnExportExcel" class="btn btn-sm bg-transparent border border-line text-ink-dim hover:border-accent hover:text-accent">Excel</button>
       </div>
@@ -217,6 +222,22 @@
           <button id="btnCloseSettings" class="btn btn-sm bg-transparent border border-line text-ink-dim hover:border-accent hover:text-accent">Cancelar</button>
           <button id="btnSaveSettings" class="btn btn-sm bg-accent text-[#0b1a18] font-semibold hover:bg-[#7fdccf] border-none">Guardar y conectar</button>
         </div>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop"><button>close</button></form>
+  </dialog>
+
+  <!-- Modal de escaneo de código de barras -->
+  <dialog id="scannerModal" class="modal">
+    <div class="modal-box max-w-md bg-panel border border-line">
+      <h3 class="font-bold text-lg mb-1">Escanear código de barras</h3>
+      <p class="text-xs mb-4 text-ink-dim">Apunta la cámara al No. de serie del equipo.</p>
+      <video id="scannerVideo" class="w-full rounded-lg bg-panel-2" autoplay muted playsinline></video>
+      <p id="scannerError" class="text-xs mt-2 text-danger"></p>
+      <div class="modal-action">
+        <form method="dialog">
+          <button class="btn btn-sm bg-transparent border border-line text-ink-dim hover:border-danger hover:text-danger">Cancelar</button>
+        </form>
       </div>
     </div>
     <form method="dialog" class="modal-backdrop"><button>close</button></form>

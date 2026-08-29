@@ -34,6 +34,8 @@ ui.onSubmitForm(async (datos, idEnEdicion) => {
   } else {
     await equiposStore.agregar(datos);
   }
+  // si no hay Firestore conectado, onChange no se dispara solo desde afuera:
+  // forzamos refresco por si el store cambió de forma síncrona (modo local)
   refrescar();
 });
 
@@ -44,6 +46,33 @@ ui.onBuscar((termino) => {
   terminoBusqueda = termino;
   refrescar();
 });
+
+// --- escaneo de código de barras: alimenta el mismo buscador de siempre ---
+// el módulo se carga dinámicamente (import lazy) para no cargar la librería
+// de escaneo en el arranque normal de la app, solo cuando alguien la usa
+let detenerEscanerActivo = () => {};
+
+ui.onAbrirEscaner(async () => {
+  ui.abrirEscaner();
+  try {
+    const { iniciarEscaner, detenerEscaner } = await import('./modules/scanner.js');
+    detenerEscanerActivo = detenerEscaner;
+    await iniciarEscaner(ui.getVideoElement(), (textoDecodificado) => {
+      terminoBusqueda = textoDecodificado;
+      ui.setBuscadorValor(textoDecodificado);
+      refrescar();
+      ui.cerrarEscaner(); // dispara el evento 'close' -> detenerEscaner()
+
+      // si el código coincide con un solo equipo, entra directo a editarlo
+      const resultados = equiposStore.buscar(textoDecodificado);
+      if (resultados.length === 1) ui.entrarModoEdicion(resultados[0]);
+    });
+  } catch (e) {
+    ui.mostrarErrorEscaner('No se pudo acceder a la cámara. Revisa los permisos del navegador.');
+  }
+});
+
+ui.onEscanerCerrado(() => detenerEscanerActivo());
 
 // --- acciones de tabla: editar / eliminar ---
 ui.onAccionTabla(async (accion, id) => {
