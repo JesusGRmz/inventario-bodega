@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador Masivo de Códigos</title>
+    <!-- Importación de librerías desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        h1 {
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            max-width: 1200px;
+        }
+
+        .card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 300px;
+            page-break-inside: avoid;
+            /* Evita que la tarjeta se corte al imprimir */
+        }
+
+        .section-title {
+            margin: 10px 0 5px 0;
+            font-size: 14px;
+            color: #007bff;
+        }
+
+        canvas,
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .badge {
+            background: #e7f1ff;
+            color: #007bff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 15px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        /* Estilos específicos para impresión rápida */
+        @media print {
+            body {
+                background: #fff;
+                padding: 0;
+            }
+
+            .card {
+                box-shadow: none;
+                border: 1px solid #ccc;
+                margin: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Generador de Etiquetas</h1>
+    <p class="subtitle">Códigos de barras y QR generados a partir de un listado</p>
+
+    <!-- Contenedor donde se inyectarán las tarjetas dinámicamente -->
+    <div id="contenedor-tarjetas" class="container"></div>
+
+   <script>
+        const listaSeries = [
+            "Ejemplo", "GVJ2KQ3", "MZ00CM1R", "MJ0ADSGL", "MJ04LCVC",
+            "8CG8492G1S", "YJ00JQLF", "MP1FYV0G", "8CG8497H8H", "8CN1360JH2",
+            "MXL7292VGY", "MXL7361F4V", "MJ0ASEPM", "MJ0DVAZD", "H089T13",
+            "8CQ117029B", "8CN1120K8J", "8CN3070LHX", "8CN34905LS"
+        ];
+
+        const contenedor = document.getElementById('contenedor-tarjetas');
+
+        listaSeries.forEach((serie, index) => {
+            const card = document.createElement('div');
+            card.className = 'card';
+
+            // HTML limpio solo con Code 128
+            card.innerHTML = `                
+                <svg id="code128-${index}"></svg>
+            `;
+
+            contenedor.appendChild(card);
+
+            // Generar únicamente Code 128
+            JsBarcode(`#code128-${index}`, serie, {
+                format: "CODE128",
+                lineColor: "#000",
+                width: 1.8,
+                height: 50,
+                displayValue: true
+            });
+        });
+    </script>
+
+</body>
+
+</html>

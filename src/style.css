@@ -41,3 +41,103 @@
   background: #1c2933;
   box-shadow: inset 2px 0 0 #5fd0c5;
 }
+
+/* Estilos para códigos de barras */
+@media print {
+  * {
+    background: transparent !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  html, body {
+    width: 100%;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    background: white;
+  }
+
+  /* Ocultar TODO excepto el modal */
+  body > *:not(#barcodeModal) {
+    display: none !important;
+  }
+
+  /* Mostrar solo el modal de códigos de barras */
+  #barcodeModal {
+    display: flex !important;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    background: white !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    inset: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    z-index: 9999 !important;
+    flex-direction: column;
+  }
+
+  /* Mostrar contenedor del modal */
+  #barcodeModal > div {
+    width: 100% !important;
+    height: auto !important;
+    border: none !important;
+    border-radius: 0 !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+    display: flex !important;
+    flex-direction: column;
+    background: white;
+    padding: 0;
+  }
+
+  /* Header oculto en impresión */
+  #barcodeModal > div > div:first-child {
+    display: none !important;
+  }
+
+  /* Footer oculto en impresión */
+  #barcodeModal > div > div:last-child {
+    display: none !important;
+  }
+
+  /* Contenedor de tarjetas */
+  #barcodeModal > div > div:nth-child(2) {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 20px !important;
+    padding: 20px !important;
+    page-break-inside: avoid;
+    width: 100% !important;
+  }
+
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 15px !important;
+    background: white !important;
+  }
+
+  .card svg,
+  .card canvas {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .card div {
+    color: black !important;
+    background: transparent !important;
+  }
+}

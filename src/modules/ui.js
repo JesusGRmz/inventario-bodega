@@ -27,6 +27,7 @@ const el = {
 
   btnExportJSON: document.getElementById('btnExportJSON'),
   btnExportExcel: document.getElementById('btnExportExcel'),
+  btnGenerarCodigos: document.getElementById('btnGenerarCodigos'),
 
   btnSettings: document.getElementById('btnSettings'),
   settingsModal: document.getElementById('settingsModal'),
@@ -352,4 +353,13 @@ export function onAbrirEscaner(handler) {
 /** El evento nativo 'close' del <dialog> cubre: botón Cancelar, tecla Esc y clic en el fondo. */
 export function onEscanerCerrado(handler) {
   el.scannerModal.addEventListener('close', handler);
+}
+
+// --- generar códigos de barras ---
+export function onGenerarCodigos(handler) {
+  el.btnGenerarCodigos.addEventListener('click', handler);
+}
+
+export function getUltimaListaRenderizada() {
+  return window.__ultimaListaRenderizada || [];
 }

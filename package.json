@@ -11,6 +11,8 @@
   "dependencies": {
     "@zxing/browser": "^0.2.1",
     "firebase": "^10.14.1",
+    "jsbarcode": "^3.11.6",
+    "qrcode": "^1.5.3",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

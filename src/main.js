@@ -1,6 +1,7 @@
 import './style.css';
 import { equiposStore } from './modules/equipos.js';
 import { exportarJSON, exportarExcel } from './modules/export.js';
+import { mostrarModalCodigos } from './modules/barcode.js';
 import {
   cargarConfigGuardada,
   guardarConfig,
@@ -91,6 +92,12 @@ ui.onAccionTabla(async (accion, id) => {
 // --- exportación ---
 ui.onExportJSON(() => exportarJSON(equiposStore.equipos));
 ui.onExportExcel(() => exportarExcel(equiposStore.equipos));
+
+// --- generar códigos de barras ---
+ui.onGenerarCodigos(async () => {
+  const equipos = ui.getUltimaListaRenderizada();
+  await mostrarModalCodigos(equipos);
+});
 
 // --- configuración de Firestore (modal) ---
 ui.onOpenSettings(() => ui.abrirModalSettings(cargarConfigGuardada()));
