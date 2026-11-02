@@ -1,5 +1,6 @@
 import './style.css';
 import { equiposStore } from './modules/equipos.js';
+import { actividadesStore } from './modules/actividades.js';
 import { exportarJSON, exportarExcel } from './modules/export.js';
 import { mostrarModalCodigos } from './modules/barcode.js';
 import {
@@ -24,6 +25,11 @@ equiposStore.onChange((equipos) => {
   const filtrados = equiposStore.buscar(terminoBusqueda);
   ui.render(filtrados, equipos.length);
 });
+
+actividadesStore.onChange((actividades) => ui.renderActividades(actividades));
+ui.onCambiarSeccion();
+ui.onSubmitActividad((datos) => actividadesStore.agregar(datos));
+ui.onCambiarEstadoActividad((id, estado) => actividadesStore.actualizarEstado(id, estado));
 
 // --- formulario: alta y edición ---
 ui.onSubmitForm(async (datos, idEnEdicion) => {
@@ -117,6 +123,7 @@ ui.onSaveSettings((config, collectionName) => {
 ui.onDisconnect(() => {
   borrarConfigGuardada();
   equiposStore.desconectarFirestore();
+  actividadesStore.desconectarFirestore();
   ui.setStatus(false, 'Solo local');
   ui.cerrarModalSettings();
   ui.mostrarApp(false); // sin Firestore no se exige login
@@ -145,10 +152,12 @@ function conectarConAuth({ db, auth }, collectionName) {
     if (usuario) {
       ui.mostrarApp(true);
       equiposStore.conectarFirestore(db, collectionName);
+      actividadesStore.conectarFirestore(db);
       ui.setStatus(true, 'Sincronizado con Firestore');
       vigilanteInactividad.iniciar();
     } else {
       equiposStore.desconectarFirestore();
+      actividadesStore.desconectarFirestore();
       ui.mostrarLogin();
       vigilanteInactividad.detener();
     }

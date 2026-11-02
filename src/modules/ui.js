@@ -17,6 +17,21 @@ const el = {
   btnSubmit: document.getElementById('btnSubmit'),
   btnCancelEdit: document.getElementById('btnCancelEdit'),
 
+  btnSectionEquipos: document.getElementById('btnSectionEquipos'),
+  btnSectionActividades: document.getElementById('btnSectionActividades'),
+  equiposView: document.getElementById('equiposView'),
+  actividadesView: document.getElementById('actividadesView'),
+  actividadForm: document.getElementById('actividadForm'),
+  actividadUsuario: document.getElementById('actividadUsuario'),
+  actividadNombre: document.getElementById('actividadNombre'),
+  actividadEstado: document.getElementById('actividadEstado'),
+  actividadComentario: document.getElementById('actividadComentario'),
+  actividadError: document.getElementById('actividadError'),
+  btnGuardarActividad: document.getElementById('btnGuardarActividad'),
+  actividadTotal: document.getElementById('actividadTotal'),
+  actividadesTablaBody: document.getElementById('actividadesTablaBody'),
+  actividadesEmptyState: document.getElementById('actividadesEmptyState'),
+
   buscador: document.getElementById('buscador'),
   totalCount: document.getElementById('totalCount'),
   tablaBody: document.getElementById('tablaBody'),
@@ -191,6 +206,77 @@ export function resetFormulario() {
   el.formTitle.textContent = 'Nuevo equipo';
   el.btnSubmit.textContent = 'Agregar equipo';
   el.btnCancelEdit.classList.add('hidden');
+}
+
+export function onCambiarSeccion() {
+  const mostrarActividades = (verActividades) => {
+    el.equiposView.classList.toggle('hidden', verActividades);
+    el.actividadesView.classList.toggle('hidden', !verActividades);
+    el.btnSectionEquipos.classList.toggle('section-tab-active', !verActividades);
+    el.btnSectionActividades.classList.toggle('section-tab-active', verActividades);
+  };
+
+  el.btnSectionEquipos.addEventListener('click', () => mostrarActividades(false));
+  el.btnSectionActividades.addEventListener('click', () => mostrarActividades(true));
+}
+
+export function onSubmitActividad(handler) {
+  el.actividadForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    el.actividadError.textContent = '';
+
+    const datos = {
+      usuario: el.actividadUsuario.value.trim(),
+      actividad: el.actividadNombre.value.trim(),
+      estado: el.actividadEstado.value,
+      comentario: el.actividadComentario.value.trim()
+    };
+    if (!datos.usuario || !datos.actividad) {
+      el.actividadError.textContent = 'Completa el nombre o usuario y la actividad.';
+      return;
+    }
+
+    el.btnGuardarActividad.disabled = true;
+    el.btnGuardarActividad.textContent = 'Guardando...';
+    try {
+      await handler(datos);
+      el.actividadForm.reset();
+    } catch (error) {
+      el.actividadError.textContent = error.message || 'No se pudo guardar la actividad.';
+    } finally {
+      el.btnGuardarActividad.disabled = false;
+      el.btnGuardarActividad.textContent = 'Registrar actividad';
+    }
+  });
+}
+
+export function renderActividades(actividades) {
+  el.actividadTotal.textContent = actividades.length;
+  el.actividadesEmptyState.classList.toggle('hidden', actividades.length > 0);
+  el.actividadesTablaBody.innerHTML = actividades
+    .map((registro) => `
+      <tr class="fade-in border-b border-line hover:bg-panel-2">
+        <td class="px-4 py-3 text-ink-dim font-mono text-xs whitespace-nowrap">${escapeHtml(fmtFecha(registro.fecha))}</td>
+        <td class="px-4 py-3">${escapeHtml(registro.usuario)}</td>
+        <td class="px-4 py-3">${escapeHtml(registro.actividad)}</td>
+        <td class="px-4 py-3">
+          <select data-actividad-estado data-id="${escapeHtml(registro.id)}" aria-label="Estado de ${escapeHtml(registro.actividad)}"
+            class="actividad-status-select estado-${(registro.estado || 'Pendiente').toLowerCase().replace(/[^a-z]+/g, '-')}">
+            <option value="Pendiente" ${(registro.estado || 'Pendiente') === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
+            <option value="Atendido, etiquetado" ${registro.estado === 'Atendido, etiquetado' ? 'selected' : ''}>Atendido, etiquetado</option>
+            <option value="Atendido sin etiquetar" ${registro.estado === 'Atendido sin etiquetar' ? 'selected' : ''}>Atendido sin etiquetar</option>
+          </select>
+        </td>
+        <td class="px-4 py-3 text-ink-dim">${escapeHtml(registro.comentario) || '—'}</td>
+      </tr>`)
+    .join('');
+}
+
+export function onCambiarEstadoActividad(handler) {
+  el.actividadesTablaBody.addEventListener('change', (event) => {
+    const select = event.target.closest('select[data-actividad-estado]');
+    if (select) handler(select.dataset.id, select.value);
+  });
 }
 
 // --- búsqueda ---

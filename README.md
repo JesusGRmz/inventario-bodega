@@ -19,6 +19,8 @@ registro-equipos/
 │   ├── firebase/
 │   │   └── config.js        # inicializa Firebase, lee/guarda config (localStorage o .env)
 │   ├── modules/
+│   │   ├── actividades.js   # store y respaldo local de la bitácora
+│   │   ├── actividades-firestore.js # sincronización de actividades
 │   │   ├── storage.js       # persistencia en localStorage
 │   │   ├── firestore.js     # CRUD + listener en tiempo real de Firestore
 │   │   ├── equipos.js       # store/estado: agregar, editar, eliminar, buscar
@@ -85,6 +87,9 @@ service cloud.firestore {
     match /equipos/{doc} {
       allow read, write: if true;
     }
+    match /actividades/{doc} {
+      allow read, write: if true;
+    }
   }
 }
 ```
@@ -102,6 +107,11 @@ service cloud.firestore {
 - **Firestore opcional**: si lo conectas, todo se sincroniza en tiempo real
   (varias personas viendo la misma tabla a la vez); si no, funciona 100%
   local y sigue exportando evidencias igual.
+- **Actividades**: registra la persona destinataria, la actividad, un comentario
+  opcional y el estado de seguimiento (Pendiente, Atendido, etiquetado o Atendido
+  sin etiquetar). El estado puede actualizarse desde el listado. La fecha/hora se
+  asigna al guardar. Se conserva localmente y, con Firestore conectado y reglas
+  habilitadas, se sincroniza en la colección independiente `actividades`.
 
 ## Build para producción
 

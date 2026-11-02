@@ -42,6 +42,44 @@
   box-shadow: inset 2px 0 0 #5fd0c5;
 }
 
+.section-tab {
+  padding: 0.65rem 0.25rem;
+  border-bottom: 2px solid transparent;
+  color: #8fa1ae;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.section-tab:hover,
+.section-tab-active {
+  color: #5fd0c5;
+}
+
+.section-tab-active {
+  border-bottom-color: #5fd0c5;
+}
+
+.actividad-status-select {
+  max-width: 13rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #26333e;
+  border-radius: 0.375rem;
+  background-color: #1c2933;
+  font-size: 0.75rem;
+}
+
+.estado-pendiente {
+  color: #e0a040;
+}
+
+.estado-atendido-etiquetado {
+  color: #5fd0c5;
+}
+
+.estado-atendido-sin-etiquetar {
+  color: #e0616e;
+}
+
 /* Estilos para códigos de barras */
 @media print {
   * {
