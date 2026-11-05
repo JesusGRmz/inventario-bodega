@@ -204,7 +204,7 @@
     <section id="actividadesView" class="hidden">
       <div class="bg-panel border border-line rounded-lg p-5 md:p-6 mb-8">
         <div class="mb-5">
-          <h2 class="text-sm font-semibold uppercase tracking-wide text-ink-dim">Registrar actividad</h2>
+          <h2 id="actividadFormTitle" class="text-sm font-semibold uppercase tracking-wide text-ink-dim">Registrar actividad</h2>
           <p class="text-xs text-ink-dim mt-1">La fecha y hora se asignan automáticamente al guardar.</p>
         </div>
         <form id="actividadForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -236,9 +236,12 @@
           </div>
           <div class="md:col-span-2 flex items-center justify-between pt-1">
             <span id="actividadError" class="text-xs text-danger" role="alert"></span>
-            <button type="submit" id="btnGuardarActividad" class="btn btn-sm bg-accent text-[#0b1a18] font-semibold hover:bg-[#7fdccf] border-none px-6">
-              Registrar actividad
-            </button>
+            <div class="flex gap-2">
+              <button type="button" id="btnCancelarActividad" class="btn btn-sm btn-ghost hidden">Cancelar</button>
+              <button type="submit" id="btnGuardarActividad" class="btn btn-sm bg-accent text-[#0b1a18] font-semibold hover:bg-[#7fdccf] border-none px-6">
+                Registrar actividad
+              </button>
+            </div>
           </div>
         </form>
       </div>
@@ -256,6 +259,7 @@
               <th class="px-4 py-3 text-ink-dim font-semibold uppercase text-[11px] border-b border-line">Actividad</th>
               <th class="px-4 py-3 text-ink-dim font-semibold uppercase text-[11px] border-b border-line">Estado</th>
               <th class="px-4 py-3 text-ink-dim font-semibold uppercase text-[11px] border-b border-line">Comentario</th>
+              <th class="px-4 py-3 text-ink-dim font-semibold uppercase text-[11px] border-b border-line">Acciones</th>
             </tr>
           </thead>
           <tbody id="actividadesTablaBody"></tbody>

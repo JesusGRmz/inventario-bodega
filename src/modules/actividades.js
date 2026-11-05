@@ -2,7 +2,9 @@ import { uid } from '../utils/helpers.js';
 import {
   escucharActividades,
   guardarActividad,
-  actualizarEstadoActividad as actualizarEstadoEnFirestore
+  actualizarEstadoActividad as actualizarEstadoEnFirestore,
+  actualizarActividad as actualizarEnFirestore,
+  eliminarActividad as eliminarEnFirestore
 } from './actividades-firestore.js';
 
 const LS_KEY = 'actividades_registro_v1';
@@ -94,6 +96,45 @@ class ActividadesStore {
     );
     guardarLocal(this.actividades);
     this._emit();
+  }
+
+  async editar(id, cambios) {
+    if (!ESTADOS_VALIDOS.includes(cambios.estado)) {
+      throw new Error('Selecciona un estado de seguimiento válido.');
+    }
+    if (!cambios.usuario?.trim() || !cambios.actividad?.trim()) {
+      throw new Error('Completa el nombre o usuario y la actividad.');
+    }
+    const actividad = {
+      usuario: cambios.usuario.trim(),
+      actividad: cambios.actividad.trim(),
+      estado: cambios.estado,
+      comentario: (cambios.comentario || '').trim()
+    };
+
+    if (this.db) {
+      await actualizarEnFirestore(this.db, id, actividad);
+      return;
+    }
+    this.actividades = this.actividades.map((registro) =>
+      registro.id === id ? { ...registro, ...actividad } : registro
+    );
+    guardarLocal(this.actividades);
+    this._emit();
+  }
+
+  async eliminar(id) {
+    if (this.db) {
+      await eliminarEnFirestore(this.db, id);
+      return;
+    }
+    this.actividades = this.actividades.filter((registro) => registro.id !== id);
+    guardarLocal(this.actividades);
+    this._emit();
+  }
+
+  obtenerPorId(id) {
+    return this.actividades.find((registro) => registro.id === id) || null;
   }
 }
 

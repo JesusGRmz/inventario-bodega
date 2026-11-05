@@ -22,12 +22,14 @@ const el = {
   equiposView: document.getElementById('equiposView'),
   actividadesView: document.getElementById('actividadesView'),
   actividadForm: document.getElementById('actividadForm'),
+  actividadFormTitle: document.getElementById('actividadFormTitle'),
   actividadUsuario: document.getElementById('actividadUsuario'),
   actividadNombre: document.getElementById('actividadNombre'),
   actividadEstado: document.getElementById('actividadEstado'),
   actividadComentario: document.getElementById('actividadComentario'),
   actividadError: document.getElementById('actividadError'),
   btnGuardarActividad: document.getElementById('btnGuardarActividad'),
+  btnCancelarActividad: document.getElementById('btnCancelarActividad'),
   actividadTotal: document.getElementById('actividadTotal'),
   actividadesTablaBody: document.getElementById('actividadesTablaBody'),
   actividadesEmptyState: document.getElementById('actividadesEmptyState'),
@@ -69,6 +71,7 @@ const el = {
 };
 
 let idEnEdicion = null;
+let actividadEnEdicionId = null;
 
 /**
  * Config de campos "select con opción Otra": evita duplicar la lógica de
@@ -239,15 +242,17 @@ export function onSubmitActividad(handler) {
     el.btnGuardarActividad.disabled = true;
     el.btnGuardarActividad.textContent = 'Guardando...';
     try {
-      await handler(datos);
-      el.actividadForm.reset();
+      await handler(datos, actividadEnEdicionId);
+      resetActividadForm();
     } catch (error) {
       el.actividadError.textContent = error.message || 'No se pudo guardar la actividad.';
     } finally {
       el.btnGuardarActividad.disabled = false;
-      el.btnGuardarActividad.textContent = 'Registrar actividad';
+      el.btnGuardarActividad.textContent = actividadEnEdicionId ? 'Guardar cambios' : 'Registrar actividad';
     }
   });
+
+  el.btnCancelarActividad.addEventListener('click', resetActividadForm);
 }
 
 export function renderActividades(actividades) {
@@ -268,6 +273,12 @@ export function renderActividades(actividades) {
           </select>
         </td>
         <td class="px-4 py-3 text-ink-dim">${escapeHtml(registro.comentario) || '—'}</td>
+        <td class="px-4 py-3 text-right space-x-2 whitespace-nowrap">
+          <button type="button" data-actividad-action="editar" data-id="${escapeHtml(registro.id)}"
+            class="text-xs text-accent hover:underline">Editar</button>
+          <button type="button" data-actividad-action="eliminar" data-id="${escapeHtml(registro.id)}"
+            class="text-xs text-danger hover:underline">Eliminar</button>
+        </td>
       </tr>`)
     .join('');
 }
@@ -275,8 +286,49 @@ export function renderActividades(actividades) {
 export function onCambiarEstadoActividad(handler) {
   el.actividadesTablaBody.addEventListener('change', (event) => {
     const select = event.target.closest('select[data-actividad-estado]');
-    if (select) handler(select.dataset.id, select.value);
+    if (select) {
+      Promise.resolve(handler(select.dataset.id, select.value)).catch((error) => {
+        mostrarErrorActividad(error.message || 'No se pudo actualizar el estado.');
+      });
+    }
   });
+}
+
+export function entrarModoEdicionActividad(actividad) {
+  actividadEnEdicionId = actividad.id;
+  el.actividadFormTitle.textContent = `Editando actividad · ${actividad.actividad}`;
+  el.actividadUsuario.value = actividad.usuario || '';
+  el.actividadNombre.value = actividad.actividad || '';
+  el.actividadEstado.value = actividad.estado || 'Pendiente';
+  el.actividadComentario.value = actividad.comentario || '';
+  el.actividadError.textContent = '';
+  el.btnGuardarActividad.textContent = 'Guardar cambios';
+  el.btnCancelarActividad.classList.remove('hidden');
+  el.actividadForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+export function salirModoEdicionActividad(id) {
+  if (actividadEnEdicionId === id) resetActividadForm();
+}
+
+function resetActividadForm() {
+  actividadEnEdicionId = null;
+  el.actividadForm.reset();
+  el.actividadError.textContent = '';
+  el.actividadFormTitle.textContent = 'Registrar actividad';
+  el.btnGuardarActividad.textContent = 'Registrar actividad';
+  el.btnCancelarActividad.classList.add('hidden');
+}
+
+export function onAccionActividad(handler) {
+  el.actividadesTablaBody.addEventListener('click', (event) => {
+    const button = event.target.closest('button[data-actividad-action]');
+    if (button) handler(button.dataset.actividadAction, button.dataset.id);
+  });
+}
+
+export function mostrarErrorActividad(mensaje) {
+  el.actividadError.textContent = mensaje;
 }
 
 // --- búsqueda ---

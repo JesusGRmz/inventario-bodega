@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, updateDoc, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, deleteDoc, doc, setDoc, updateDoc, onSnapshot, query, orderBy } from 'firebase/firestore';
 
 export function escucharActividades(db, onCambio, onError) {
   const q = query(collection(db, 'actividades'), orderBy('fecha', 'desc'));
@@ -18,4 +18,12 @@ export async function guardarActividad(db, actividad) {
 
 export async function actualizarEstadoActividad(db, id, estado) {
   await updateDoc(doc(db, 'actividades', id), { estado });
+}
+
+export async function actualizarActividad(db, id, cambios) {
+  await updateDoc(doc(db, 'actividades', id), cambios);
+}
+
+export async function eliminarActividad(db, id) {
+  await deleteDoc(doc(db, 'actividades', id));
 }

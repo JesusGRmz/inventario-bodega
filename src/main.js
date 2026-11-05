@@ -28,8 +28,27 @@ equiposStore.onChange((equipos) => {
 
 actividadesStore.onChange((actividades) => ui.renderActividades(actividades));
 ui.onCambiarSeccion();
-ui.onSubmitActividad((datos) => actividadesStore.agregar(datos));
+ui.onSubmitActividad((datos, id) =>
+  id ? actividadesStore.editar(id, datos) : actividadesStore.agregar(datos)
+);
 ui.onCambiarEstadoActividad((id, estado) => actividadesStore.actualizarEstado(id, estado));
+ui.onAccionActividad(async (accion, id) => {
+  if (accion === 'editar') {
+    const actividad = actividadesStore.obtenerPorId(id);
+    if (actividad) ui.entrarModoEdicionActividad(actividad);
+    return;
+  }
+  if (accion === 'eliminar') {
+    const actividad = actividadesStore.obtenerPorId(id);
+    if (!actividad || !confirm(`¿Eliminar la actividad "${actividad.actividad}" para "${actividad.usuario}"?`)) return;
+    try {
+      await actividadesStore.eliminar(id);
+      ui.salirModoEdicionActividad(id);
+    } catch (error) {
+      ui.mostrarErrorActividad(error.message || 'No se pudo eliminar la actividad.');
+    }
+  }
+});
 
 // --- formulario: alta y edición ---
 ui.onSubmitForm(async (datos, idEnEdicion) => {
