@@ -171,12 +171,12 @@ function conectarConAuth({ db, auth }, collectionName) {
     if (usuario) {
       ui.mostrarApp(true);
       equiposStore.conectarFirestore(db, collectionName);
-      actividadesStore.conectarFirestore(db);
+      actividadesStore.conectarFirestore(db, usuario.uid);
       ui.setStatus(true, 'Sincronizado con Firestore');
       vigilanteInactividad.iniciar();
     } else {
       equiposStore.desconectarFirestore();
-      actividadesStore.desconectarFirestore();
+      actividadesStore.desconectarFirestore({ modoLocal: false });
       ui.mostrarLogin();
       vigilanteInactividad.detener();
     }

@@ -75,24 +75,33 @@ conecta todo. Si mañana cambias de Firestore a otra base, solo tocas
 No necesitas nada más instalado globalmente: Node ya trae npm, y Vite se
 encarga del bundling, del servidor de desarrollo y del build de producción.
 
-## Reglas de seguridad de Firestore (sugerido para pruebas)
+## Reglas de seguridad de Firestore
 
-Mientras evidencias/pruebas, en Firebase Console → Firestore → Reglas, algo
-simple para empezar (ajusta antes de producción real):
+En Firebase Console → Firestore → Reglas, publica reglas como estas. Los
+equipos siguen siendo compartidos entre usuarios autenticados; las actividades
+solo se pueden leer y modificar dentro de la ruta del UID de la sesión:
 
 ```
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /equipos/{doc} {
-      allow read, write: if true;
+      allow read, write: if request.auth != null;
     }
-    match /actividades/{doc} {
-      allow read, write: if true;
+    match /usuarios/{uid}/actividades/{actividadId} {
+      allow read, create, update, delete:
+        if request.auth != null && request.auth.uid == uid;
     }
   }
 }
 ```
+
+Las cuentas se crean/administran en Firebase Authentication (la aplicación
+actual permite iniciar sesión, pero no incluye registro de cuentas). Las
+actividades nuevas se guardan en `usuarios/{uid}/actividades/{actividadId}`.
+El respaldo local también se separa por UID. Los datos antiguos de la colección
+compartida `actividades` y de la clave local anterior no se asignan
+automáticamente a una cuenta, porque no es posible saber a quién pertenecen.
 
 ## Funcionalidades
 
@@ -110,8 +119,9 @@ service cloud.firestore {
 - **Actividades**: registra la persona destinataria, la actividad, un comentario
   opcional y el estado de seguimiento (Pendiente, Atendido, etiquetado o Atendido
   sin etiquetar). El estado puede actualizarse desde el listado. La fecha/hora se
-  asigna al guardar. Se conserva localmente y, con Firestore conectado y reglas
-  habilitadas, se sincroniza en la colección independiente `actividades`.
+  asigna al guardar. Con sesión de Firebase, cada usuario accede solo a sus
+  actividades; sin Firebase, la aplicación conserva el modo local compartido
+  para uso en ese navegador.
 
 ## Build para producción
 

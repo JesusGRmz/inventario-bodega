@@ -1,7 +1,15 @@
 import { collection, deleteDoc, doc, setDoc, updateDoc, onSnapshot, query, orderBy } from 'firebase/firestore';
 
-export function escucharActividades(db, onCambio, onError) {
-  const q = query(collection(db, 'actividades'), orderBy('fecha', 'desc'));
+function referenciaActividades(db, uid) {
+  return collection(db, 'usuarios', uid, 'actividades');
+}
+
+function referenciaActividad(db, uid, id) {
+  return doc(db, 'usuarios', uid, 'actividades', id);
+}
+
+export function escucharActividades(db, uid, onCambio, onError) {
+  const q = query(referenciaActividades(db, uid), orderBy('fecha', 'desc'));
   return onSnapshot(
     q,
     (snap) => onCambio(snap.docs.map((documento) => ({ id: documento.id, ...documento.data() }))),
@@ -12,18 +20,18 @@ export function escucharActividades(db, onCambio, onError) {
   );
 }
 
-export async function guardarActividad(db, actividad) {
-  await setDoc(doc(db, 'actividades', actividad.id), actividad);
+export async function guardarActividad(db, uid, actividad) {
+  await setDoc(referenciaActividad(db, uid, actividad.id), actividad);
 }
 
-export async function actualizarEstadoActividad(db, id, estado) {
-  await updateDoc(doc(db, 'actividades', id), { estado });
+export async function actualizarEstadoActividad(db, uid, id, estado) {
+  await updateDoc(referenciaActividad(db, uid, id), { estado });
 }
 
-export async function actualizarActividad(db, id, cambios) {
-  await updateDoc(doc(db, 'actividades', id), cambios);
+export async function actualizarActividad(db, uid, id, cambios) {
+  await updateDoc(referenciaActividad(db, uid, id), cambios);
 }
 
-export async function eliminarActividad(db, id) {
-  await deleteDoc(doc(db, 'actividades', id));
+export async function eliminarActividad(db, uid, id) {
+  await deleteDoc(referenciaActividad(db, uid, id));
 }
