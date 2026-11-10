@@ -60,9 +60,10 @@
       </div>
     </div>
 
-    <nav class="flex gap-2 border-b border-line mb-6" aria-label="Secciones del inventario">
+    <nav class="flex gap-2 border-b border-line mb-6" aria-label="Secciones de la aplicación">
       <button id="btnSectionEquipos" type="button" class="section-tab section-tab-active">Equipos</button>
       <button id="btnSectionActividades" type="button" class="section-tab">Actividades</button>
+      <button id="btnSectionHoras" type="button" class="section-tab">Horas extra</button>
     </nav>
 
     <section id="equiposView">
@@ -267,6 +268,76 @@
         <div id="actividadesEmptyState" class="text-center py-10 hidden text-ink-dim">
           Aún no hay actividades registradas.
         </div>
+      </div>
+    </section>
+
+    <section id="horasView" class="hidden">
+      <div class="bg-panel border border-line rounded-lg p-5 md:p-6 mb-8">
+        <div class="mb-5">
+          <h2 id="horasFormTitle" class="text-sm font-semibold uppercase tracking-wide text-ink-dim">Registrar jornada</h2>
+          <p class="text-xs text-ink-dim mt-1">Lunes a viernes se descuenta 1 hora de comida y se cuenta lo que exceda 8 horas netas. Los sábados no se descuenta comida; solo cuenta lo que exceda la duración de la guardia.</p>
+        </div>
+        <form id="horasForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="horasFecha" class="text-xs mb-1 block text-ink-dim">Fecha *</label>
+            <input type="date" id="horasFecha" required
+              class="w-full px-3 py-2 text-sm bg-panel-2 border border-line rounded-lg focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20">
+          </div>
+          <div id="horasGuardiaContainer" class="hidden">
+            <label for="horasGuardia" class="text-xs mb-1 block text-ink-dim">Tipo de guardia *</label>
+            <select id="horasGuardia" class="w-full px-3 py-2 text-sm bg-panel-2 border border-line rounded-lg focus:outline-none focus:border-accent">
+              <option value="180">3 horas · 9:00–12:00</option>
+              <option value="300">5 horas · 8:00–13:00</option>
+              <option value="330">5.5 horas · 9:30–15:00</option>
+              <option value="360">6 horas · 9:00–15:00</option>
+            </select>
+          </div>
+          <div>
+            <label for="horasEntrada" class="text-xs mb-1 block text-ink-dim">Hora de entrada *</label>
+            <input type="time" id="horasEntrada" required
+              class="w-full px-3 py-2 text-sm bg-panel-2 border border-line rounded-lg focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20">
+          </div>
+          <div>
+            <label for="horasSalida" class="text-xs mb-1 block text-ink-dim">Hora de salida *</label>
+            <input type="time" id="horasSalida" required
+              class="w-full px-3 py-2 text-sm bg-panel-2 border border-line rounded-lg focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20">
+          </div>
+          <div class="md:col-span-2 flex items-center justify-between pt-1">
+            <span id="horasError" class="text-xs text-danger" role="alert"></span>
+            <div class="flex gap-2">
+              <button type="button" id="btnCancelarHoras" class="btn btn-sm btn-ghost hidden">Cancelar</button>
+              <button type="submit" id="btnGuardarHoras" class="btn btn-sm bg-accent text-[#0b1a18] font-semibold hover:bg-[#7fdccf] border-none px-6">
+                Registrar jornada
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-panel border border-line rounded-lg p-5 mb-6">
+        <p class="text-xs uppercase tracking-wide text-ink-dim">Total acumulado de horas extra</p>
+        <p id="horasTotal" class="text-3xl font-semibold text-accent mt-1">0 h 00 min</p>
+        <p id="horasSyncError" class="text-xs text-danger mt-2" role="alert"></p>
+      </div>
+
+      <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-ink-dim">Jornadas registradas</h2>
+        <span id="horasRegistrosTotal" class="font-mono text-[11px] px-2 py-0.5 rounded border border-line text-ink-dim">0</span>
+      </div>
+      <div class="bg-panel border border-line rounded-lg overflow-x-auto">
+        <table class="table w-full text-sm">
+          <thead>
+            <tr>
+              <th class="px-4 py-3 text-ink-dim font-semibold uppercase text-[11px] border-b border-line">Fecha</th>
+              <th class="px-4 py-3 text-ink-dim font-semibold uppercase text-[11px] border-b border-line">Jornada</th>
+              <th class="px-4 py-3 text-ink-dim font-semibold uppercase text-[11px] border-b border-line">Entrada–salida</th>
+              <th class="px-4 py-3 text-ink-dim font-semibold uppercase text-[11px] border-b border-line">Horas extra</th>
+              <th class="px-4 py-3 text-ink-dim font-semibold uppercase text-[11px] border-b border-line">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="horasTablaBody"></tbody>
+        </table>
+        <div id="horasEmptyState" class="text-center py-10 hidden text-ink-dim">Aún no hay jornadas registradas.</div>
       </div>
     </section>
   </div>

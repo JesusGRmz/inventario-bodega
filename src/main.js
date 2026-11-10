@@ -1,6 +1,7 @@
 import './style.css';
 import { equiposStore } from './modules/equipos.js';
 import { actividadesStore } from './modules/actividades.js';
+import { horasExtrasStore } from './modules/horas-extras.js';
 import { exportarJSON, exportarExcel } from './modules/export.js';
 import { mostrarModalCodigos } from './modules/barcode.js';
 import {
@@ -27,7 +28,27 @@ equiposStore.onChange((equipos) => {
 });
 
 actividadesStore.onChange((actividades) => ui.renderActividades(actividades));
+horasExtrasStore.onChange((registros, error) => ui.renderHorasExtras(registros, error));
 ui.onCambiarSeccion();
+ui.onSubmitHoras((datos, id) =>
+  id ? horasExtrasStore.editar(id, datos) : horasExtrasStore.agregar(datos)
+);
+ui.onAccionHoras(async (accion, id) => {
+  const registro = horasExtrasStore.obtenerPorId(id);
+  if (!registro) return;
+  if (accion === 'editar') {
+    ui.entrarModoEdicionHoras(registro);
+    return;
+  }
+  if (accion === 'eliminar' && confirm(`¿Eliminar el registro de horas extra del ${registro.fecha}?`)) {
+    try {
+      await horasExtrasStore.eliminar(id);
+      ui.salirModoEdicionHoras(id);
+    } catch (error) {
+      ui.mostrarErrorHoras(error.message || 'No se pudo eliminar el registro.');
+    }
+  }
+});
 ui.onSubmitActividad((datos, id) =>
   id ? actividadesStore.editar(id, datos) : actividadesStore.agregar(datos)
 );
@@ -143,6 +164,7 @@ ui.onDisconnect(() => {
   borrarConfigGuardada();
   equiposStore.desconectarFirestore();
   actividadesStore.desconectarFirestore();
+  horasExtrasStore.desconectarFirestore();
   ui.setStatus(false, 'Solo local');
   ui.cerrarModalSettings();
   ui.mostrarApp(false); // sin Firestore no se exige login
@@ -172,11 +194,13 @@ function conectarConAuth({ db, auth }, collectionName) {
       ui.mostrarApp(true);
       equiposStore.conectarFirestore(db, collectionName);
       actividadesStore.conectarFirestore(db, usuario.uid);
+      horasExtrasStore.conectarFirestore(db, usuario.uid);
       ui.setStatus(true, 'Sincronizado con Firestore');
       vigilanteInactividad.iniciar();
     } else {
       equiposStore.desconectarFirestore();
       actividadesStore.desconectarFirestore({ modoLocal: false });
+      horasExtrasStore.desconectarFirestore({ modoLocal: false });
       ui.mostrarLogin();
       vigilanteInactividad.detener();
     }

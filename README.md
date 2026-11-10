@@ -21,6 +21,8 @@ registro-equipos/
 │   ├── modules/
 │   │   ├── actividades.js   # store y respaldo local de la bitácora
 │   │   ├── actividades-firestore.js # sincronización de actividades
+│   │   ├── horas-extras.js  # cálculo, CRUD y respaldo local de horas extra
+│   │   ├── horas-extras-firestore.js # sincronización de horas extra
 │   │   ├── storage.js       # persistencia en localStorage
 │   │   ├── firestore.js     # CRUD + listener en tiempo real de Firestore
 │   │   ├── equipos.js       # store/estado: agregar, editar, eliminar, buscar
@@ -92,16 +94,22 @@ service cloud.firestore {
       allow read, create, update, delete:
         if request.auth != null && request.auth.uid == uid;
     }
+    match /usuarios/{uid}/horasExtras/{registroId} {
+      allow read, create, update, delete:
+        if request.auth != null && request.auth.uid == uid;
+    }
   }
 }
 ```
 
 Las cuentas se crean/administran en Firebase Authentication (la aplicación
 actual permite iniciar sesión, pero no incluye registro de cuentas). Las
-actividades nuevas se guardan en `usuarios/{uid}/actividades/{actividadId}`.
-El respaldo local también se separa por UID. Los datos antiguos de la colección
-compartida `actividades` y de la clave local anterior no se asignan
-automáticamente a una cuenta, porque no es posible saber a quién pertenecen.
+actividades y horas extra se guardan respectivamente en
+`usuarios/{uid}/actividades/{actividadId}` y
+`usuarios/{uid}/horasExtras/{registroId}`. El respaldo local también se separa
+por UID. Los datos antiguos de la colección compartida `actividades` y de la
+clave local anterior no se asignan automáticamente a una cuenta, porque no es
+posible saber a quién pertenecen.
 
 ## Funcionalidades
 
@@ -122,6 +130,11 @@ automáticamente a una cuenta, porque no es posible saber a quién pertenecen.
   asigna al guardar. Con sesión de Firebase, cada usuario accede solo a sus
   actividades; sin Firebase, la aplicación conserva el modo local compartido
   para uso en ese navegador.
+- **Horas extra**: registra una jornada por fecha. Entre semana se descuentan
+  60 minutos de comida y solo se acumula el tiempo neto que supere 8 horas.
+  Los sábados se selecciona una guardia de 3, 5, 5.5 o 6 horas, y se acumula
+  únicamente el tiempo trabajado por encima de esa duración, sin descontar
+  tiempo de comida. El total se actualiza al agregar, editar o eliminar registros.
 
 ## Build para producción
 

@@ -19,8 +19,10 @@ const el = {
 
   btnSectionEquipos: document.getElementById('btnSectionEquipos'),
   btnSectionActividades: document.getElementById('btnSectionActividades'),
+  btnSectionHoras: document.getElementById('btnSectionHoras'),
   equiposView: document.getElementById('equiposView'),
   actividadesView: document.getElementById('actividadesView'),
+  horasView: document.getElementById('horasView'),
   actividadForm: document.getElementById('actividadForm'),
   actividadFormTitle: document.getElementById('actividadFormTitle'),
   actividadUsuario: document.getElementById('actividadUsuario'),
@@ -33,6 +35,22 @@ const el = {
   actividadTotal: document.getElementById('actividadTotal'),
   actividadesTablaBody: document.getElementById('actividadesTablaBody'),
   actividadesEmptyState: document.getElementById('actividadesEmptyState'),
+
+  horasForm: document.getElementById('horasForm'),
+  horasFormTitle: document.getElementById('horasFormTitle'),
+  horasFecha: document.getElementById('horasFecha'),
+  horasGuardiaContainer: document.getElementById('horasGuardiaContainer'),
+  horasGuardia: document.getElementById('horasGuardia'),
+  horasEntrada: document.getElementById('horasEntrada'),
+  horasSalida: document.getElementById('horasSalida'),
+  horasError: document.getElementById('horasError'),
+  btnGuardarHoras: document.getElementById('btnGuardarHoras'),
+  btnCancelarHoras: document.getElementById('btnCancelarHoras'),
+  horasTotal: document.getElementById('horasTotal'),
+  horasSyncError: document.getElementById('horasSyncError'),
+  horasRegistrosTotal: document.getElementById('horasRegistrosTotal'),
+  horasTablaBody: document.getElementById('horasTablaBody'),
+  horasEmptyState: document.getElementById('horasEmptyState'),
 
   buscador: document.getElementById('buscador'),
   totalCount: document.getElementById('totalCount'),
@@ -72,6 +90,7 @@ const el = {
 
 let idEnEdicion = null;
 let actividadEnEdicionId = null;
+let horasEnEdicionId = null;
 
 /**
  * Config de campos "select con opción Otra": evita duplicar la lógica de
@@ -212,15 +231,20 @@ export function resetFormulario() {
 }
 
 export function onCambiarSeccion() {
-  const mostrarActividades = (verActividades) => {
-    el.equiposView.classList.toggle('hidden', verActividades);
-    el.actividadesView.classList.toggle('hidden', !verActividades);
-    el.btnSectionEquipos.classList.toggle('section-tab-active', !verActividades);
-    el.btnSectionActividades.classList.toggle('section-tab-active', verActividades);
+  const secciones = [
+    { button: el.btnSectionEquipos, view: el.equiposView },
+    { button: el.btnSectionActividades, view: el.actividadesView },
+    { button: el.btnSectionHoras, view: el.horasView }
+  ];
+  const mostrarSeccion = (activa) => {
+    secciones.forEach(({ button, view }) => {
+      const seleccionada = button === activa;
+      view.classList.toggle('hidden', !seleccionada);
+      button.classList.toggle('section-tab-active', seleccionada);
+    });
   };
 
-  el.btnSectionEquipos.addEventListener('click', () => mostrarActividades(false));
-  el.btnSectionActividades.addEventListener('click', () => mostrarActividades(true));
+  secciones.forEach(({ button }) => button.addEventListener('click', () => mostrarSeccion(button)));
 }
 
 export function onSubmitActividad(handler) {
@@ -329,6 +353,127 @@ export function onAccionActividad(handler) {
 
 export function mostrarErrorActividad(mensaje) {
   el.actividadError.textContent = mensaje;
+}
+
+function hoyLocal() {
+  const ahora = new Date();
+  const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+  const dia = String(ahora.getDate()).padStart(2, '0');
+  return `${ahora.getFullYear()}-${mes}-${dia}`;
+}
+
+function actualizarTipoJornada() {
+  const esSabado = el.horasFecha.value && new Date(`${el.horasFecha.value}T12:00:00`).getDay() === 6;
+  el.horasGuardiaContainer.classList.toggle('hidden', !esSabado);
+  el.horasGuardia.required = Boolean(esSabado);
+}
+
+function leerFormularioHoras() {
+  return {
+    fecha: el.horasFecha.value,
+    tipo: el.horasFecha.value && new Date(`${el.horasFecha.value}T12:00:00`).getDay() === 6
+      ? 'sabado'
+      : 'laboral',
+    guardiaMinutos: el.horasGuardia.value,
+    entrada: el.horasEntrada.value,
+    salida: el.horasSalida.value
+  };
+}
+
+function resetFormularioHoras() {
+  horasEnEdicionId = null;
+  el.horasForm.reset();
+  el.horasFecha.value = hoyLocal();
+  el.horasError.textContent = '';
+  el.horasFormTitle.textContent = 'Registrar jornada';
+  el.btnGuardarHoras.textContent = 'Registrar jornada';
+  el.btnCancelarHoras.classList.add('hidden');
+  actualizarTipoJornada();
+}
+
+el.horasFecha.addEventListener('change', actualizarTipoJornada);
+
+export function onSubmitHoras(handler) {
+  el.horasForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    el.horasError.textContent = '';
+    el.btnGuardarHoras.disabled = true;
+    el.btnGuardarHoras.textContent = 'Guardando...';
+    try {
+      await handler(leerFormularioHoras(), horasEnEdicionId);
+      resetFormularioHoras();
+    } catch (error) {
+      el.horasError.textContent = error.message || 'No se pudo guardar la jornada.';
+    } finally {
+      el.btnGuardarHoras.disabled = false;
+      el.btnGuardarHoras.textContent = horasEnEdicionId ? 'Guardar cambios' : 'Registrar jornada';
+    }
+  });
+  el.btnCancelarHoras.addEventListener('click', resetFormularioHoras);
+  resetFormularioHoras();
+}
+
+function formatoDuracion(minutos) {
+  const horas = Math.floor(minutos / 60);
+  const resto = minutos % 60;
+  return `${horas} h ${String(resto).padStart(2, '0')} min`;
+}
+
+export function renderHorasExtras(registros, error = '') {
+  const totalMinutos = registros.reduce((total, registro) => total + (registro.horasExtraMinutos || 0), 0);
+  el.horasTotal.textContent = formatoDuracion(totalMinutos);
+  el.horasSyncError.textContent = error;
+  el.horasRegistrosTotal.textContent = registros.length;
+  el.horasEmptyState.classList.toggle('hidden', registros.length > 0);
+  el.horasTablaBody.innerHTML = registros.map((registro) => {
+    const [anio, mes, dia] = registro.fecha.split('-');
+    const fechaVisible = `${dia}/${mes}/${anio}`;
+    const tipo = registro.tipo === 'sabado'
+      ? `Guardia (${registro.jornadaMinutos / 60} h)`
+      : 'Lunes a viernes';
+    return `
+      <tr class="fade-in border-b border-line hover:bg-panel-2">
+        <td class="px-4 py-3 whitespace-nowrap">${escapeHtml(fechaVisible)}</td>
+        <td class="px-4 py-3">${escapeHtml(tipo)}</td>
+        <td class="px-4 py-3 font-mono">${escapeHtml(registro.entrada)}–${escapeHtml(registro.salida)}</td>
+        <td class="px-4 py-3 font-mono text-accent">${formatoDuracion(registro.horasExtraMinutos || 0)}</td>
+        <td class="px-4 py-3 text-right space-x-2 whitespace-nowrap">
+          <button type="button" data-horas-action="editar" data-id="${escapeHtml(registro.id)}"
+            class="text-xs text-accent hover:underline">Editar</button>
+          <button type="button" data-horas-action="eliminar" data-id="${escapeHtml(registro.id)}"
+            class="text-xs text-danger hover:underline">Eliminar</button>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+export function onAccionHoras(handler) {
+  el.horasTablaBody.addEventListener('click', (event) => {
+    const button = event.target.closest('button[data-horas-action]');
+    if (button) handler(button.dataset.horasAction, button.dataset.id);
+  });
+}
+
+export function entrarModoEdicionHoras(registro) {
+  horasEnEdicionId = registro.id;
+  el.horasFecha.value = registro.fecha;
+  el.horasGuardia.value = String(registro.jornadaMinutos);
+  el.horasEntrada.value = registro.entrada;
+  el.horasSalida.value = registro.salida;
+  el.horasError.textContent = '';
+  el.horasFormTitle.textContent = `Editando jornada · ${registro.fecha}`;
+  el.btnGuardarHoras.textContent = 'Guardar cambios';
+  el.btnCancelarHoras.classList.remove('hidden');
+  actualizarTipoJornada();
+  el.horasForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+export function salirModoEdicionHoras(id) {
+  if (horasEnEdicionId === id) resetFormularioHoras();
+}
+
+export function mostrarErrorHoras(mensaje) {
+  el.horasError.textContent = mensaje;
 }
 
 // --- búsqueda ---
